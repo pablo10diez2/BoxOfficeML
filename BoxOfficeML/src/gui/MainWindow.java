@@ -14,20 +14,24 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.AbstractTableModel;
 
-public class main extends JFrame{
+import dom.Actor;
+
+public class MainWindow extends JFrame{
 	
     /**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	public ArrayList<String> searchList = new ArrayList<>();
+	public ArrayList<Actor> searchList = new ArrayList<>();
 
-	public main(){
-        setSize(new Dimension(1000, 600));   
+	public MainWindow(){
+        setSize(new Dimension(1500, 800));   
         setLocationRelativeTo(null);
 
         this.setLayout(new GridLayout(1, 2));
@@ -96,6 +100,18 @@ public class main extends JFrame{
         
         rightPanel.add(rightNorthPanel, BorderLayout.NORTH);
         
+        ActorModel actorModel = new ActorModel();
+        
+        JTable table = new JTable(actorModel);
+        
+        table.getColumnModel().getColumn(0).setMinWidth(0);
+     	table.getColumnModel().getColumn(0).setMaxWidth(0);
+     	table.getColumnModel().getColumn(0).setPreferredWidth(0);
+        
+        JScrollPane scrollPane = new JScrollPane(table);
+        
+        rightPanel.add(scrollPane, BorderLayout.CENTER);
+        
         //Action listener searchButton 
         searchButton.addActionListener(new ActionListener() {
 			
@@ -105,11 +121,13 @@ public class main extends JFrame{
 				if(!text.isEmpty()) {
 					String replaced = text.replaceAll(" ", "%20");
 					try {
-						System.out.println(connectionAPI.obtainActor(replaced, searchList));
+						searchList.clear();
+						connectionAPI.obtainActor(replaced, searchList);
+
 					} catch (Exception e1) {
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
+					actorModel.updateData();
 				}
 				
 			}
@@ -123,7 +141,80 @@ public class main extends JFrame{
     }
 
    public static void main(String[] args) {
-       new main();
+       new MainWindow();
+   }
+   
+   class ActorModel extends AbstractTableModel{
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		
+		private String[] nombreDatos = {"id", "Picture", "Name", "Department", "Proyects"}; 
+		
+		public void updateData() {
+		    fireTableDataChanged();
+		}
+
+		@Override
+		public String getColumnName(int column) {
+			return nombreDatos[column];
+		}
+
+
+		@Override
+		public boolean isCellEditable(int rowIndex, int columnIndex) {
+			return false;
+		}
+
+		@Override
+		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+			Actor actor = searchList.get(rowIndex);
+	        switch (columnIndex) {
+	            case 0:
+	                actor.setId((int) aValue);
+	                break;
+	            case 1:
+	                actor.setPicture((String) aValue);
+	                break;
+	            case 3:
+	            	actor.setKnownForDepartment((String) aValue);
+	            	break;
+	            case 2:
+	                actor.setName((String) aValue);
+	                break;
+	            case 4:
+	            	actor.setFilms((ArrayList<String>) aValue);
+	            	break; 	
+	        }
+	        fireTableCellUpdated(rowIndex, columnIndex);
+		}
+
+		@Override
+		public int getRowCount() {
+			return searchList.size();
+		}
+
+		@Override
+		public int getColumnCount() {
+			return nombreDatos.length;
+		}
+
+		@Override
+		public Object getValueAt(int rowIndex, int columnIndex) {
+			Actor actor = searchList.get(rowIndex);
+	        switch (columnIndex) {
+	        case 0: return actor.getId();
+            case 1: return actor.getPicture();
+            case 3: return actor.getKnownForDepartment();
+            case 2: return actor.getName();
+            case 4: return actor.getFilms().toString();
+            default: return null;
+	        }
+
+   	
    }
 
+}
 }
