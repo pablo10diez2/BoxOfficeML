@@ -37,7 +37,15 @@ public class connectionAPI {
         
         for (int i = 0; i < actors.length(); i++) {
             int id = actors.getJSONObject(i).getInt("id");
-            String knownDepartment = actors.getJSONObject(i).getString("known_for_department");
+            
+            String knownDepartment = null;
+            
+            try {
+            	 knownDepartment = actors.getJSONObject(i).getString("known_for_department");
+            }catch (Exception e) {
+            	 knownDepartment = "No data";
+            }
+            
             String name = actors.getJSONObject(i).getString("name");
             Double popularity = actors.getJSONObject(i).getDouble("popularity");
             String picture = obtainPhoto(id);
