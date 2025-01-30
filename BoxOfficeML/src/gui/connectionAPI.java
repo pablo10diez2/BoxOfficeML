@@ -62,7 +62,6 @@ public class connectionAPI {
                      try {
                          originalTitle = filmList.getJSONObject(j).getString("name");
                      } catch (Exception ex) {
-                         System.out.println("Error: No se encontró 'original_title' ni 'name'");
                      }
                  }
             	 filmList2.add(originalTitle);
